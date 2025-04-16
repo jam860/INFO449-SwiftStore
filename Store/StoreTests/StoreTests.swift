@@ -101,7 +101,7 @@ TOTAL: $39.17
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
-    func testThreeForOne() {
+    func testThreeForTwo() {
         register.newThreeforTwoPricingScheme(itemName: Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
@@ -121,7 +121,7 @@ TOTAL: $3.98
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
-    func testThreeForOneMoreItems() {
+    func testThreeForTwoMoreItems() {
         register.newThreeforTwoPricingScheme(itemName: Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
@@ -133,9 +133,21 @@ TOTAL: $3.98
         
         let receipt = register.total()
         XCTAssertEqual(796, receipt.total())
+        
+        let expectedReceipt = """
+Receipt:
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+Beans (8oz Can): $0.0
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+------------------
+TOTAL: $7.96
+"""
+        XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
-    func testThreeForOneTwoTimes() {
+    func testThreeForTwoTwoTimes() {
         register.newThreeforTwoPricingScheme(itemName: Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
         register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
@@ -147,6 +159,19 @@ TOTAL: $3.98
         
         let receipt = register.total()
         XCTAssertEqual(796, receipt.total())
+        
+        let expectedReceipt = """
+Receipt:
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+Beans (8oz Can): $0.0
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+Beans (8oz Can): $0.0
+------------------
+TOTAL: $7.96
+"""
+        XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
     func testGroupsOfThree() {
@@ -169,11 +194,23 @@ TOTAL: $3.98
         XCTAssertEqual(1346, register.subtotal()) //still should be discounted
         
         register.scan(Item(name: "Ryuji Sakamoto", priceEach: 999))
-        XCTAssertEqual(2345, register.subtotal()) //still should be discounted
+        XCTAssertEqual(2345, register.subtotal()) //this should not be discounted
         
 
         let receipt = register.total()
         XCTAssertEqual(2345, receipt.total())
+        
+        let expectedReceipt = """
+Receipt:
+Beans: $1.79
+Fries: $2.69
+Ice Cream: $4.49
+Ice Cream: $4.49
+Ryuji Sakamoto: $9.99
+------------------
+TOTAL: $23.45
+"""
+        XCTAssertEqual(expectedReceipt, receipt.output())
     }
     
     

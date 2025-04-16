@@ -172,7 +172,25 @@ class GroupPricingScheme {
         }
     }
     
+    func discountReceipt(receipt: Receipt, currentTotal: Int) -> Int {
+        var total = currentTotal;
+        for i in 0...receipt.allItems.count - 1 {
+            if getRequiredItemNames().contains(receipt.allItems[i].name) {
+                let discountedPrice = Double(receipt.allItems[i].itemPrice) * discount;
+                total = total - Int(discountedPrice.rounded())
+                receipt.allItems[i].itemPrice = (Int(Double(receipt.allItems[i].itemPrice) - discountedPrice))
+            }
+        }
+        return total;
+    }
     
+    func discountItem(item: Item, currentTotal: Int) -> Int {
+        var total = currentTotal
+        let discountedPrice = Double(item.itemPrice) * Double(discount)
+        item.itemPrice = Int((Double(item.itemPrice) - discountedPrice).rounded());
+        total = total - Int(discountedPrice.rounded())
+        return total
+    }
 }
 
 
@@ -214,19 +232,12 @@ class Register {
         if groupPricing.getRequiredItemNames().contains(SKU.name) && flagGroupPricing == false {
             groupPricing.requiredItems.append(SKU)
             if groupPricing.applyGroupPricing() {
-                for i in 0...receipt.allItems.count - 1 {
-                    if groupPricing.getRequiredItemNames().contains(receipt.allItems[i].name) {
-                        let discountedPrice = Double(receipt.allItems[i].itemPrice) * groupPricing.discount;
-                        currentTotal = currentTotal - Int(discountedPrice.rounded())
-                        receipt.allItems[i].itemPrice = (Int(Double(receipt.allItems[i].itemPrice) - discountedPrice))
-                    }
-                }
-                flagGroupPricing = true;
+                let newTotal = groupPricing.discountReceipt(receipt: receipt, currentTotal: currentTotal)
+                currentTotal = newTotal
+                flagGroupPricing = true
             }
         } else if groupPricing.getRequiredItemNames().contains(SKU.name) && flagGroupPricing {
-            let discountedPrice = Double(SKU.itemPrice) * Double(groupPricing.discount);
-            SKU.itemPrice = Int((Double(SKU.itemPrice) - discountedPrice).rounded());
-            currentTotal = currentTotal - Int(discountedPrice.rounded())
+            currentTotal = groupPricing.discountItem(item: SKU, currentTotal: currentTotal)
         }
     }
     
